@@ -14,7 +14,14 @@
   "keywords": ["typescript", "express", "mongodb", "jwt", "authentication"],
   "author": "",
   "license": "ISC",
-  "type": "module",
+  "ts-node": {
+    "esm": false,
+    "transpileOnly": true,
+    "compilerOptions": {
+      "module": "commonjs"
+    }
+  },
+  "type": "commonjs",
   "dependencies": {
     "express": "^4.18.2",
     "mongoose": "^8.0.3",
