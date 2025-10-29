@@ -13,6 +13,7 @@ A complete full-stack application built with **TypeScript**, **React**, **Expres
 - ⚡ **Loading & Error States** - Enhanced UX with proper feedback
 - 🔔 **Toast Notifications** - Real-time user feedback
 - 🛡️ **Protected Routes** - Secure route access based on authentication
+- 👁️ **Viewable Passwords** - Eye button to view passwords (demo feature)
 
 ## 🏗️ Project Structure
 
@@ -28,6 +29,7 @@ User-Management-System-ts/
 │   │   ├── types/           # TypeScript type definitions
 │   │   ├── utils/           # Utility functions
 │   │   ├── validations/     # Zod validation schemas
+│   │   ├── scripts/         # Migration scripts
 │   │   └── server.ts        # Express server entry
 │   ├── package.json
 │   └── tsconfig.json
@@ -53,7 +55,7 @@ User-Management-System-ts/
 - **TypeScript** - Type-safe JavaScript
 - **MongoDB** & **Mongoose** - Database
 - **JWT** - Authentication
-- **Bcrypt** - Password hashing
+- **AES-256** - Password encryption (demo feature)
 - **Zod** - Schema validation
 - **CORS** - Cross-origin resource sharing
 
@@ -80,7 +82,7 @@ Before running this application, make sure you have:
 ### 1. Clone the Repository
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/Fadi786-tech/User-Management-System.git
 cd User-Management-System-ts
 ```
 
@@ -93,7 +95,7 @@ cd backend
 npm install
 
 # Create .env file
-cp .env.example .env
+cp env.example .env
 
 # Update .env with your configuration:
 # PORT=5000
@@ -131,7 +133,18 @@ npm run build
 npm run preview
 ```
 
-The frontend will start on `http://localhost:3000`
+The frontend will start on `http://localhost:5173`
+
+### 4. Password Migration (Important!)
+
+If you're upgrading from an older version, run the password migration:
+
+```bash
+cd backend
+npm run migrate-passwords
+```
+
+This converts old bcrypt passwords to the viewable format. All migrated users will have password: `Password123!`
 
 ## 🔑 Environment Variables
 
@@ -143,6 +156,7 @@ MONGODB_URI=mongodb://localhost:27017/user_management_system
 JWT_SECRET=your_super_secret_jwt_key_change_this_in_production
 JWT_EXPIRES_IN=7d
 NODE_ENV=development
+ENCRYPTION_KEY=your-encryption-key-32-chars
 ```
 
 ### Frontend (.env) - Optional
@@ -165,7 +179,8 @@ VITE_API_URL=http://localhost:5000/api
 | Method | Endpoint | Description | Access |
 |--------|----------|-------------|--------|
 | GET | `/api/me` | Get current user | Authenticated |
-| GET | `/api/users` | Get all users | SuperAdmin |
+| GET | `/api/users` | Get all users | Admin/SuperAdmin |
+| GET | `/api/password/:id` | Get user password | User (own)/Admin/SuperAdmin |
 | PUT | `/api/update/:id` | Update user | Owner/Admin/SuperAdmin |
 | DELETE | `/api/delete/:id` | Delete user | SuperAdmin |
 
@@ -187,48 +202,75 @@ VITE_API_URL=http://localhost:5000/api
 ### Role
 - Must be one of: `SuperAdmin`, `Admin`, `User`
 
-## 👥 User Roles
+## 👥 User Roles & Permissions
 
-1. **SuperAdmin**
-   - Full access to all features
-   - Can view all users
-   - Can delete any user
-   - Can change user roles
+### 1. SuperAdmin
+- Full access to all features
+- Can view/edit/delete all users
+- Can view all passwords
+- Can change any user's role
+- Can create SuperAdmin accounts
 
-2. **Admin**
-   - Can update user profiles
-   - Limited administrative access
+### 2. Admin
+- Can view all users
+- Can edit User accounts (name, email, password)
+- Can view User passwords
+- Can create Admin and User accounts
+- **Cannot** edit/view SuperAdmin or other Admin users
 
-3. **User**
-   - Can view and edit own profile
-   - Basic access
+### 3. User
+- Can view own profile
+- Can edit own profile (name, email, password)
+- Can view own password
+- Basic access only
+
+## 👁️ Password Viewing Feature
+
+This system includes a viewable password feature (demo purposes):
+
+- **Users** can see their own password via eye button on Dashboard
+- **Admins** can see User passwords in the User Management table
+- **SuperAdmins** can see all passwords in the User Management table
+
+Click the eye icon (👁️) to reveal/hide passwords.
 
 ## 🎯 Usage
 
-### 1. Register a New User
+### 1. Create SuperAdmin (First Time)
 
-Navigate to the registration page and create an account with:
-- Full name (min 3 characters)
-- Valid email address
-- Strong password (meeting all requirements)
+Using Postman/Thunder Client:
+```
+POST http://localhost:5000/api/register
+Content-Type: application/json
+
+{
+  "name": "Super Admin",
+  "email": "admin@example.com",
+  "password": "Admin@123456",
+  "role": "SuperAdmin"
+}
+```
 
 ### 2. Login
 
-Use your credentials to log in. You'll receive a JWT token that's stored in localStorage.
+Use your credentials to log in. You'll receive a JWT token stored in localStorage.
 
 ### 3. Dashboard
 
 After login, you'll be redirected to your dashboard where you can:
 - View your profile information
+- See your password (click eye button)
 - Edit your profile
 - Update your password
 
-### 4. User Management (SuperAdmin Only)
+### 4. User Management (Admin/SuperAdmin)
 
-SuperAdmins can access the Users page to:
+Admins and SuperAdmins can access the Users page to:
 - View all registered users
+- See user passwords (with eye button)
+- Edit user details (name, email, password)
 - Edit user roles
-- Delete users (except themselves)
+- Delete users (SuperAdmin only)
 
 ## 🚨 Error Handling
 
@@ -236,16 +278,6 @@ The application includes comprehensive error handling:
 - **Frontend**: Loading states, error messages, and toast notifications
 - **Backend**: Centralized error handling with consistent JSON responses
 - **Validation**: Both client-side and server-side validation with Zod
-
-## 🔒 Security Features
-
-- Password hashing with bcrypt
-- JWT token authentication
-- Protected routes on frontend and backend
-- Role-based access control
-- Input validation and sanitization
-- CORS configuration
-- Environment variable protection
 
 ## 📱 Responsive Design
 
@@ -260,10 +292,11 @@ The application is fully responsive and works seamlessly on:
 
 ```bash
 cd backend
-npm run dev      # Run with nodemon (auto-reload)
-npm run build    # Compile TypeScript
-npm run lint     # Run ESLint
-npm run format   # Format with Prettier
+npm run dev              # Run with nodemon (auto-reload)
+npm run build            # Compile TypeScript
+npm run lint             # Run ESLint
+npm run format           # Format with Prettier
+npm run migrate-passwords # Migrate old passwords
 ```
 
 ### Frontend Development
@@ -286,6 +319,7 @@ npm run format   # Format with Prettier
 - `npm start` - Start production server
 - `npm run lint` - Lint code with ESLint
 - `npm run format` - Format code with Prettier
+- `npm run migrate-passwords` - Migrate bcrypt passwords to encrypted format
 
 ### Frontend Scripts
 
@@ -313,6 +347,10 @@ npm run format   # Format with Prettier
 - Clear localStorage and try logging in again
 - Check if JWT_SECRET is properly set in backend .env
 
+### Password Shows "[BCRYPT HASH - Cannot decrypt]"
+- Run the migration script: `npm run migrate-passwords`
+- This converts old passwords to the new viewable format
+
 ## 🤝 Contributing
 
 1. Fork the repository
@@ -327,6 +365,10 @@ This project is licensed under the ISC License.
 
 ## 👨‍💻 Author
 
+**Fahad Sohail**  
+Full-Stack Developer | TypeScript | Node.js | React  
+📧 sohail786fahad@gmail.com
+
 Built with ❤️ using TypeScript, React, Express, and MongoDB
 
 ## 🙏 Acknowledgments
@@ -340,4 +382,3 @@ Built with ❤️ using TypeScript, React, Express, and MongoDB
 ---
 
 **Happy Coding! 🚀**
-
