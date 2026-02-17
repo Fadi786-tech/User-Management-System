@@ -12,7 +12,7 @@ export interface IUser {
   createdAt: Date;
   updatedAt: Date;
   comparePassword(candidatePassword: string): Promise<boolean>;
-  getDecryptedPassword(): string; // ⚠️ INSECURE - For DEMO only
+  getDecryptedPassword(): string; 
 }
 
 export interface JWTPayload extends JwtPayload {
@@ -52,4 +52,3 @@ export interface ApiResponse<T = any> {
   data?: T;
   error?: string;
 }
-

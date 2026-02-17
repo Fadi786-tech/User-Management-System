@@ -418,7 +418,18 @@ export const getUserPassword = async (
     // Permission checks
     const isOwnPassword = req.user?.userId === id;
     const isSuperAdmin = req.user?.role === 'SuperAdmin';
-    const isAdminViewingUser = req.user?.role === 'Admin' && user.role === 'User';
+    const isAdmin = req.user?.role === 'Admin';
+    const isAdminViewingUser = isAdmin && user.role === 'User';
+
+    // Admin cannot view SuperAdmin passwords (even their own if role changed)
+    if (isAdmin && user.role === 'SuperAdmin') {
+      res.status(403).json({
+        success: false,
+        message: 'Access denied',
+        error: 'Admin cannot view SuperAdmin passwords',
+      });
+      return;
+    }
 
     if (!isOwnPassword && !isSuperAdmin && !isAdminViewingUser) {
       res.status(403).json({

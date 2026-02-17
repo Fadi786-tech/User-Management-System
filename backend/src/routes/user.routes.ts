@@ -28,7 +28,6 @@ router.delete(
   deleteUser
 );
 
-// ⚠️ INSECURE: Get decrypted password - DEMO ONLY
 router.get('/password/:id', authenticate, getUserPassword);
 
 export default router;

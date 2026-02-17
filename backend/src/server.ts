@@ -43,15 +43,6 @@ connectDB();
 // Routes
 app.use('/api', userRoutes);
 
-// Health check route
-app.get('/health', (_req: Request, res: Response) => {
-  res.status(200).json({
-    success: true,
-    message: 'Server is running',
-    timestamp: new Date().toISOString(),
-  });
-});
-
 // 404 handler
 app.use((req: Request, res: Response) => {
   res.status(404).json({

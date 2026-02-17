@@ -1,29 +1,10 @@
-/**
- * ⚠️ SECURITY WARNING ⚠️
- * 
- * This file implements REVERSIBLE password encryption.
- * This is EXTREMELY INSECURE and should NEVER be used in production.
- * 
- * This is for DEMO/LEARNING purposes ONLY.
- * 
- * In production, ALWAYS use one-way hashing (bcrypt, argon2, etc.)
- * NEVER store passwords in a way they can be decrypted.
- */
-
 import crypto from 'crypto';
-
-// ⚠️ WARNING: In production, this should be in environment variables
-// For demo purposes, using a fixed key (NEVER do this in production!)
 const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY || 'demo-key-32-chars-long-12345';
 const ALGORITHM = 'aes-256-cbc';
 
 // Ensure key is 32 bytes
 const KEY = crypto.createHash('sha256').update(ENCRYPTION_KEY).digest();
 
-/**
- * ⚠️ INSECURE: Encrypts password (reversible)
- * For DEMO purposes only
- */
 export const encryptPassword = (password: string): string => {
   const iv = crypto.randomBytes(16);
   const cipher = crypto.createCipheriv(ALGORITHM, KEY, iv);
@@ -35,10 +16,7 @@ export const encryptPassword = (password: string): string => {
   return iv.toString('hex') + ':' + encrypted;
 };
 
-/**
- * ⚠️ INSECURE: Decrypts password
- * For DEMO purposes only
- */
+
 export const decryptPassword = (encryptedPassword: string): string => {
   try {
     const parts = encryptedPassword.split(':');

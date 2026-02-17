@@ -1,14 +1,3 @@
-/**
- * ⚠️⚠️⚠️ SECURITY WARNING ⚠️⚠️⚠️
- * 
- * This model uses REVERSIBLE ENCRYPTION for passwords.
- * This is EXTREMELY INSECURE and for DEMO/LEARNING purposes ONLY.
- * 
- * NEVER use this approach in production!
- * In production, ALWAYS use one-way hashing (bcrypt, argon2, scrypt).
- * 
- * Passwords can be decrypted and viewed - major security vulnerability!
- */
 
 import mongoose, { Schema, Model } from 'mongoose';
 import bcrypt from 'bcrypt';
