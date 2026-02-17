@@ -1,18 +1,23 @@
 import mongoose from 'mongoose';
 
+// Type for mongoose cache
+type MongooseCache = {
+  conn: typeof mongoose | null;
+  promise: Promise<typeof mongoose> | null;
+};
+
 // Extend global type for mongoose cache
 declare global {
-  var mongoose: {
-    conn: typeof mongoose | null;
-    promise: Promise<typeof mongoose> | null;
-  };
+  var mongoose: MongooseCache | undefined;
 }
 
 // Cache the connection to reuse in serverless environments
-let cached = global.mongoose;
+let cached: MongooseCache;
 
-if (!cached) {
+if (!global.mongoose) {
   cached = global.mongoose = { conn: null, promise: null };
+} else {
+  cached = global.mongoose;
 }
 
 const connectDB = async (): Promise<void> => {
@@ -34,9 +39,9 @@ const connectDB = async (): Promise<void> => {
         bufferCommands: false,
       };
 
-      cached.promise = mongoose.connect(mongoURI, opts).then((mongoose) => {
-        console.log(`✅ MongoDB Connected: ${mongoose.connection.host}`);
-        return mongoose;
+      cached.promise = mongoose.connect(mongoURI, opts).then((mongooseInstance) => {
+        console.log(`✅ MongoDB Connected: ${mongooseInstance.connection.host}`);
+        return mongooseInstance;
       });
     }
 

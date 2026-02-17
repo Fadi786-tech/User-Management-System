@@ -31,7 +31,7 @@ app.use(
       }
       
       // In production, check against allowed origins
-      if (allowedOrigins.length === 0 || allowedOrigins.some(allowed => origin.includes(allowed))) {
+      if (allowedOrigins.length === 0 || allowedOrigins.some(allowed => allowed && origin.includes(allowed))) {
         callback(null, true);
       } else {
         // If FRONTEND_URL is not set, allow all (for flexibility)
@@ -55,7 +55,7 @@ connectDB().catch((error) => {
 app.use('/api', userRoutes);
 
 // Health check endpoint
-app.get('/health', (req: Request, res: Response) => {
+app.get('/health', (_req: Request, res: Response) => {
   res.status(200).json({
     success: true,
     message: 'Server is running',
@@ -81,4 +81,5 @@ if (process.env.VERCEL !== '1') {
 }
 
 // Export for Vercel serverless functions
+// Vercel expects the default export to be the Express app
 export default app;
