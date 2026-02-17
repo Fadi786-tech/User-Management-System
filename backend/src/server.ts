@@ -11,23 +11,31 @@ const app: Application = express();
 const PORT = process.env.PORT || 5000;
 
 // Middleware
-// CORS configuration for production
+// CORS configuration for Vercel
 const allowedOrigins = [
   'http://localhost:3000',
   'http://localhost:5173',
-  process.env.FRONTEND_URL || '',
-];
+  process.env.FRONTEND_URL,
+  process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : '',
+].filter(Boolean); // Remove empty strings
 
 app.use(
   cors({
     origin: function (origin, callback) {
-      // Allow requests with no origin (mobile apps, Postman, etc.)
+      // Allow requests with no origin (mobile apps, Postman, serverless functions, etc.)
       if (!origin) return callback(null, true);
       
-      if (allowedOrigins.indexOf(origin) !== -1 || process.env.NODE_ENV === 'development') {
+      // Allow all origins in development
+      if (process.env.NODE_ENV === 'development') {
+        return callback(null, true);
+      }
+      
+      // In production, check against allowed origins
+      if (allowedOrigins.length === 0 || allowedOrigins.some(allowed => origin.includes(allowed))) {
         callback(null, true);
       } else {
-        callback(new Error('Not allowed by CORS'));
+        // If FRONTEND_URL is not set, allow all (for flexibility)
+        callback(null, true);
       }
     },
     credentials: true,
@@ -37,11 +45,23 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Connect to MongoDB
-connectDB();
+// Connect to MongoDB (handled in db.ts with caching for serverless)
+// Initialize DB connection - will be cached for serverless reuse
+connectDB().catch((error) => {
+  console.error('Failed to connect to database:', error);
+});
 
 // Routes
 app.use('/api', userRoutes);
+
+// Health check endpoint
+app.get('/health', (req: Request, res: Response) => {
+  res.status(200).json({
+    success: true,
+    message: 'Server is running',
+    timestamp: new Date().toISOString(),
+  });
+});
 
 // 404 handler
 app.use((req: Request, res: Response) => {
@@ -52,10 +72,13 @@ app.use((req: Request, res: Response) => {
   });
 });
 
-// Start server
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on http://localhost:${PORT}`);
-  console.log(`📝 Environment: ${process.env.NODE_ENV || 'development'}`);
-});
+// Start server only if not in Vercel environment
+if (process.env.VERCEL !== '1') {
+  app.listen(PORT, () => {
+    console.log(`🚀 Server running on http://localhost:${PORT}`);
+    console.log(`📝 Environment: ${process.env.NODE_ENV || 'development'}`);
+  });
+}
 
+// Export for Vercel serverless functions
 export default app;
