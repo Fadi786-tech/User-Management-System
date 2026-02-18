@@ -92,68 +92,77 @@ export const register = async (
 };
 
 // Login user
+// export const login = async (req: AuthRequest, res: Response): Promise<void> => {
+//   try {
+//     // Validate input with Zod
+//     const validatedData = loginSchema.parse(req.body);
+
+//     // Find user by email
+//     const user = await User.findOne({ email: validatedData.email });
+//     if (!user) {
+//       res.status(401).json({
+//         success: false,
+//         message: 'Login failed',
+//         error: 'Invalid email or password',
+//       });
+//       return;
+//     }
+
+//     // Check password
+//     const isPasswordValid = await user.comparePassword(validatedData.password);
+//     if (!isPasswordValid) {
+//       res.status(401).json({
+//         success: false,
+//         message: 'Login failed',
+//         error: 'Invalid email or password',
+//       });
+//       return;
+//     }
+
+//     // Generate JWT token
+//     const token = generateToken(user._id.toString(), user.role);
+
+//     res.status(200).json({
+//       success: true,
+//       message: 'Login successful',
+//       data: {
+//         token,
+//         user: {
+//           _id: user._id,
+//           name: user.name,
+//           email: user.email,
+//           role: user.role,
+//           createdAt: user.createdAt,
+//           updatedAt: user.updatedAt,
+//         },
+//       },
+//     });
+//   } catch (error) {
+//     if (error instanceof ZodError) {
+//       res.status(400).json({
+//         success: false,
+//         message: 'Validation failed',
+//         error: error.errors.map((e) => `${e.path.join('.')}: ${e.message}`).join(', '),
+//       });
+//       return;
+//     }
+
+//     res.status(500).json({
+//       success: false,
+//       message: 'Login failed',
+//       error: error instanceof Error ? error.message : 'Internal server error',
+//     });
+//   }
+// };
 export const login = async (req: AuthRequest, res: Response): Promise<void> => {
-  try {
-    // Validate input with Zod
-    const validatedData = loginSchema.parse(req.body);
+  console.log("Login route hit");
 
-    // Find user by email
-    const user = await User.findOne({ email: validatedData.email });
-    if (!user) {
-      res.status(401).json({
-        success: false,
-        message: 'Login failed',
-        error: 'Invalid email or password',
-      });
-      return;
-    }
-
-    // Check password
-    const isPasswordValid = await user.comparePassword(validatedData.password);
-    if (!isPasswordValid) {
-      res.status(401).json({
-        success: false,
-        message: 'Login failed',
-        error: 'Invalid email or password',
-      });
-      return;
-    }
-
-    // Generate JWT token
-    const token = generateToken(user._id.toString(), user.role);
-
-    res.status(200).json({
-      success: true,
-      message: 'Login successful',
-      data: {
-        token,
-        user: {
-          _id: user._id,
-          name: user.name,
-          email: user.email,
-          role: user.role,
-          createdAt: user.createdAt,
-          updatedAt: user.updatedAt,
-        },
-      },
-    });
-  } catch (error) {
-    if (error instanceof ZodError) {
-      res.status(400).json({
-        success: false,
-        message: 'Validation failed',
-        error: error.errors.map((e) => `${e.path.join('.')}: ${e.message}`).join(', '),
-      });
-      return;
-    }
-
-    res.status(500).json({
-      success: false,
-      message: 'Login failed',
-      error: error instanceof Error ? error.message : 'Internal server error',
-    });
-  }
+   res.status(200).json({
+    success: true,
+    message: "Test response"
+  });
 };
+
 
 // Get all users (SuperAdmin only)
 export const getAllUsers = async (
