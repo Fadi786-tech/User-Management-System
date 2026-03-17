@@ -12,7 +12,9 @@
       "dest": "/api/[...all].ts"
     }
   ],
-  "env": {
-    "NODE_ENV": "production"
+  "functions": {
+    "api/[...all].ts": {
+      "maxDuration": 30
+    }
   }
 }
