@@ -24,7 +24,7 @@ connectDB().catch((error) => {
 });
 
 // Routes
-app.use('/api', userRoutes);
+app.use('/api/auth', userRoutes);
 
 // Health check endpoint
 app.get('/health', (_req: Request, res: Response) => {
@@ -52,6 +52,16 @@ app.use((req: Request, res: Response) => {
     error: `Cannot ${req.method} ${req.path}`,
   });
 });
+
+// Start server for local development
+const PORT = process.env.PORT || 5000;
+
+if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+    console.log(`Health check: http://localhost:${PORT}/health`);
+  });
+}
 
 // Export for Vercel
 export default app;
