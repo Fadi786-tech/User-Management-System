@@ -76,7 +76,7 @@ app.use((req: Request, res: Response) => {
 if (process.env.VERCEL !== '1') {
   app.listen(PORT, () => {
     console.log(`🚀 Server running on http://localhost:${PORT}`);
-    console.log(`📝 Environment: ${process.env.NODE_ENV || 'development'}`);
+    console.log(`📝 Environment: ${process.env.NODE_ENV || 'production'}`);
   });
 }
 

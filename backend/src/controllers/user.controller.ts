@@ -4,7 +4,6 @@ import User from '../models/User.model';
 import { generateToken } from '../utils/token';
 import {
   registerSchema,
-  loginSchema,
   updateUserSchema,
 } from '../validations/user.validation';
 import { ZodError } from 'zod';
@@ -154,7 +153,7 @@ export const register = async (
 //     });
 //   }
 // };
-export const login = async (req: AuthRequest, res: Response): Promise<void> => {
+export const login = async (_req: AuthRequest, res: Response): Promise<void> => {
   console.log("Login route hit");
 
    res.status(200).json({
